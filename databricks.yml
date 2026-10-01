@@ -34,6 +34,12 @@ variables:
 include:
   - resources/*.yml
 
+sync:
+  # Per-workspace widget defaults for interactive notebook runs. Copy local_defaults.example.json to
+  # local_defaults.json (gitignored) and edit it; the bundle still syncs it to the workspace.
+  include:
+    - notebooks/local_defaults*.json
+
 targets:
   fevm:
     default: true

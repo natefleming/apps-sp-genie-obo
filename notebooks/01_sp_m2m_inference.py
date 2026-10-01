@@ -24,7 +24,7 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install "databricks-sdk>=0.145.0" "openai>=1.80" requests pandas
+# MAGIC %pip install databricks-sdk~=0.145 openai requests pandas
 
 # COMMAND ----------
 
@@ -32,23 +32,47 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text("app_name", "sp-genie-obo")
-dbutils.widgets.text("east_secret_scope", "retail_consumer_goods")
-dbutils.widgets.text("east_client_id_key", "RETAIL_AI_DATABRICKS_CLIENT_ID")
-dbutils.widgets.text("east_client_secret_key", "RETAIL_AI_DATABRICKS_CLIENT_SECRET")
-dbutils.widgets.text("west_secret_scope", "sp-rls-demo")
-dbutils.widgets.text("west_client_id_key", "west_client_id")
-dbutils.widgets.text("west_client_secret_key", "west_client_secret")
-dbutils.widgets.text("question", "What are total covers and number of reservations by region?")
+import json
+import os
+
+# Optional per-workspace widget defaults: notebooks/local_defaults.json is gitignored but synced by the bundle.
+LOCAL_DEFAULTS: dict[str, str] = (
+    json.load(open("local_defaults.json")) if os.path.exists("local_defaults.json") else {}
+)
+
+
+def widget(name: str, default: str) -> None:
+    dbutils.widgets.text(name, LOCAL_DEFAULTS.get(name, default))
+
+
+widget("app_name", "sp-genie-obo")
+widget("east_secret_scope", "retail_consumer_goods")
+widget("east_client_id_key", "RETAIL_AI_DATABRICKS_CLIENT_ID")
+widget("east_client_secret_key", "RETAIL_AI_DATABRICKS_CLIENT_SECRET")
+widget("west_secret_scope", "sp-rls-demo")
+widget("west_client_id_key", "west_client_id")
+widget("west_client_secret_key", "west_client_secret")
+widget("question", "What are total covers and number of reservations by region?")
 
 app_name: str = dbutils.widgets.get("app_name")
 question: str = dbutils.widgets.get("question")
 
+def secret(scope: str, key: str) -> str:
+    """Read a secret, with an actionable error instead of a raw gRPC trace."""
+    try:
+        return dbutils.secrets.get(scope, key)
+    except Exception as e:
+        raise RuntimeError(
+            f"Could not read secret '{key}' from scope '{scope}'. Run 00_setup_rls_demo first (it creates the "
+            "WEST scope), or set the *_secret_scope / *_key widgets to where your SP credentials live."
+        ) from e
+
+
 # Each SP's credentials come from a secret scope, the way the caller service would hold them.
 SPS: dict[str, tuple[str, str]] = {
     region: (
-        dbutils.secrets.get(dbutils.widgets.get(f"{p}_secret_scope"), dbutils.widgets.get(f"{p}_client_id_key")),
-        dbutils.secrets.get(dbutils.widgets.get(f"{p}_secret_scope"), dbutils.widgets.get(f"{p}_client_secret_key")),
+        secret(dbutils.widgets.get(f"{p}_secret_scope"), dbutils.widgets.get(f"{p}_client_id_key")),
+        secret(dbutils.widgets.get(f"{p}_secret_scope"), dbutils.widgets.get(f"{p}_client_secret_key")),
     )
     for region, p in (("EAST", "east"), ("WEST", "west"))
 }

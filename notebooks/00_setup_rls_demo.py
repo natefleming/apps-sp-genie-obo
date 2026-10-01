@@ -15,7 +15,7 @@
 
 # COMMAND ----------
 
-# MAGIC %pip install "databricks-sdk>=0.145.0"
+# MAGIC %pip install databricks-sdk~=0.145
 
 # COMMAND ----------
 
@@ -23,16 +23,29 @@
 
 # COMMAND ----------
 
-dbutils.widgets.text("catalog", "retail_consumer_goods")
-dbutils.widgets.text("schema", "sp_rls_demo")
-dbutils.widgets.text("warehouse_id", "d58e5fb998498840")
-dbutils.widgets.text("east_secret_scope", "retail_consumer_goods")
-dbutils.widgets.text("east_client_id_key", "RETAIL_AI_DATABRICKS_CLIENT_ID")
-dbutils.widgets.text("east_client_secret_key", "RETAIL_AI_DATABRICKS_CLIENT_SECRET")
-dbutils.widgets.text("west_secret_scope", "sp-rls-demo")
-dbutils.widgets.text("west_sp_name", "rls-demo-west")
-dbutils.widgets.text("app_name", "sp-genie-obo")
-dbutils.widgets.text("genie_title", "SP RLS Demo — Reservations")
+import json
+import os
+
+# Optional per-workspace widget defaults: notebooks/local_defaults.json is gitignored but synced by the bundle.
+LOCAL_DEFAULTS: dict[str, str] = (
+    json.load(open("local_defaults.json")) if os.path.exists("local_defaults.json") else {}
+)
+
+
+def widget(name: str, default: str) -> None:
+    dbutils.widgets.text(name, LOCAL_DEFAULTS.get(name, default))
+
+
+widget("catalog", "retail_consumer_goods")
+widget("schema", "sp_rls_demo")
+widget("warehouse_id", "d58e5fb998498840")
+widget("east_secret_scope", "retail_consumer_goods")
+widget("east_client_id_key", "RETAIL_AI_DATABRICKS_CLIENT_ID")
+widget("east_client_secret_key", "RETAIL_AI_DATABRICKS_CLIENT_SECRET")
+widget("west_secret_scope", "sp-rls-demo")
+widget("west_sp_name", "rls-demo-west")
+widget("app_name", "sp-genie-obo")
+widget("genie_title", "SP RLS Demo — Reservations")
 
 catalog: str = dbutils.widgets.get("catalog")
 schema: str = dbutils.widgets.get("schema")

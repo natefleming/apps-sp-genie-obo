@@ -1,0 +1,6 @@
+{
+  "app_name": "sp-genie-obo",
+  "schema": "sp_rls_demo",
+  "west_sp_name": "rls-demo-west",
+  "genie_title": "SP RLS Demo — Reservations"
+}

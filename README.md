@@ -41,6 +41,10 @@ caller SP --(client id/secret → /oidc/v1/token)--> Bearer token
 
 All names (app, jobs, schema, WEST SP, secret scope, Genie title, workspace folder) are bundle variables in
 `databricks.yml` with generic defaults. Change `targets.fevm.workspace.profile` to use your own CLI profile.
+
+If you change any names, mirror them for **interactive** runs (Run All in the workspace uses widget defaults, not
+bundle variables). Copy `notebooks/local_defaults.example.json` to `notebooks/local_defaults.json` (gitignored) and
+edit it. The bundle syncs it next to the notebooks, and they use it for their widget defaults.
 3. Run the demo (or open `notebooks/01_sp_m2m_inference` in the workspace and click **Run All**):
    ```bash
    databricks bundle run sp_m2m_inference_demo -t fevm
@@ -70,6 +74,6 @@ WEST (`rls-demo-west` by default) is created by setup, with its secret in scope 
 ## Gotchas hit while building
 - Claude Sonnet 5 rejects `temperature`, so don't pass it to `ChatDatabricks`.
 - `ChatDatabricks` JSON-serializes list content (reasoning + text) into a string; `app.py:_answer_text` keeps only the text blocks.
-- `%pip install pkg>=x` without quotes: the shell treats `>` as a redirect. Quote version specs.
+- `%pip install pkg>=x` without quotes: the shell treats `>` as a redirect. Quoting fixes the shell, but a quoted spec copied into a serverless notebook's Environment panel keeps its quotes and fails to install. Use `~=` specs (no `>`, no quotes).
 - On a serverless job, use `%pip` and declare deps in the job environment; `%uv` wasn't available there.
 - An empty env `value` fails app deploy; use a placeholder.
