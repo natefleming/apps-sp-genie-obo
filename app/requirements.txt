@@ -1,0 +1,7 @@
+mlflow==3.16.1
+langchain==1.4.2
+langgraph==1.2.12
+databricks-langchain==0.20.0
+databricks-openai==0.17.1
+databricks-sdk==0.145.0
+uvicorn

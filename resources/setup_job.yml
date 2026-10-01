@@ -1,0 +1,22 @@
+resources:
+  jobs:
+    setup_rls_demo:
+      name: ${var.app_name}-setup
+      tasks:
+        - task_key: setup
+          notebook_task:
+            notebook_path: ../notebooks/00_setup_rls_demo.py
+            base_parameters:
+              warehouse_id: ${var.warehouse_id}
+              app_name: ${resources.apps.sp_genie_obo.name}
+              schema: ${var.demo_schema}
+              west_secret_scope: ${var.west_secret_scope}
+              west_sp_name: ${var.west_sp_name}
+              genie_title: ${var.genie_title}
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+            dependencies:
+              - databricks-sdk>=0.145.0

@@ -1,0 +1,24 @@
+resources:
+  apps:
+    sp_genie_obo:
+      name: ${var.app_name}
+      description: SP M2M caller -> Agent Server -> Genie as the caller (RLS demo)
+      source_code_path: ../app
+      # OBO scopes on the token the proxy forwards as x-forwarded-access-token.
+      user_api_scopes:
+        - genie
+        - sql
+      config:
+        command: ["python", "app.py"]
+        env:
+          - name: LLM_ENDPOINT
+            value: ${var.llm_endpoint}
+          - name: GENIE_SPACE_ID
+            value: ${var.genie_space_id}
+          - name: MLFLOW_TRACKING_URI
+            value: databricks
+      resources:
+        - name: llm
+          serving_endpoint:
+            name: ${var.llm_endpoint}
+            permission: CAN_QUERY

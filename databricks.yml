@@ -1,0 +1,42 @@
+bundle:
+  name: apps-sp-genie-obo
+  engine: direct
+
+variables:
+  llm_endpoint:
+    default: databricks-claude-sonnet-5
+    description: Foundation model endpoint the agent's LLM calls (as the App SP)
+  genie_space_id:
+    default: set-after-setup
+    description: Genie space (agent) id the ask_genie tool calls as the caller (printed by notebooks/00_setup_rls_demo.py)
+  app_name:
+    default: sp-genie-obo
+    description: Databricks App name (jobs are named after it)
+  workspace_folder:
+    default: apps-sp-genie-obo
+    description: Folder under your workspace home that the bundle syncs to
+  demo_schema:
+    default: sp_rls_demo
+    description: Schema (in the setup notebook's catalog) holding the demo table and row filter
+  west_sp_name:
+    default: rls-demo-west
+    description: Display name of the WEST service principal created by setup
+  west_secret_scope:
+    default: sp-rls-demo
+    description: Secret scope where setup stores the WEST SP's OAuth secret
+  genie_title:
+    default: SP RLS Demo — Reservations
+    description: Title of the Genie space created by setup
+  warehouse_id:
+    default: d58e5fb998498840
+    description: SQL warehouse used by Genie and the RLS validation queries
+
+include:
+  - resources/*.yml
+
+targets:
+  fevm:
+    default: true
+    workspace:
+      profile: fevm
+      root_path: /Workspace/Users/${workspace.current_user.userName}/${var.workspace_folder}

@@ -1,0 +1,20 @@
+resources:
+  jobs:
+    sp_m2m_inference_demo:
+      name: ${var.app_name}-demo
+      tasks:
+        - task_key: demo
+          notebook_task:
+            notebook_path: ../notebooks/01_sp_m2m_inference.py
+            base_parameters:
+              app_name: ${resources.apps.sp_genie_obo.name}
+              west_secret_scope: ${var.west_secret_scope}
+          environment_key: default
+      environments:
+        - environment_key: default
+          spec:
+            environment_version: "4"
+            dependencies:
+              - databricks-sdk>=0.145.0
+              - openai>=1.80
+              - pandas
